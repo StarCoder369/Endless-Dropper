@@ -6,6 +6,10 @@ public class GameManager : MonoBehaviour
 
     public float dropperSpeed = 30f;
 
+    public ObjectPool modulePool;
+
+    public GameObject player;
+
     void Awake()
     {
         if (Instance != null && Instance != this)

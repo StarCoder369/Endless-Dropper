@@ -2,12 +2,17 @@ using UnityEngine;
 
 public class DropperSpawner : MonoBehaviour
 {
-    public GameObject dropper;
-
     public float moduleDistance;
 
     float distanceSinceLastSpawn;
 
+    GameObject enabledModule;
+    GameObject lastEnabledModule;
+
+    void Start()
+    {
+        SpawnModule();
+    }
     void Update()
     {
         distanceSinceLastSpawn += GameManager.Instance.dropperSpeed * Time.deltaTime;
@@ -21,6 +26,12 @@ public class DropperSpawner : MonoBehaviour
 
     public void SpawnModule()
     {
-        Instantiate(dropper, transform.position, Quaternion.identity);
+        enabledModule = GameManager.Instance.modulePool.GetObject();
+        enabledModule.transform.position = transform.position;
+        if (lastEnabledModule != null)
+        {
+            enabledModule.transform.position = new Vector3(enabledModule.transform.position.x, lastEnabledModule.transform.position.y - moduleDistance, enabledModule.transform.position.z);
+        }
+        lastEnabledModule = enabledModule;
     }
 }
