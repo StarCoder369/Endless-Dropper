@@ -32,4 +32,17 @@ public class PlayerMovement : MonoBehaviour
 
         rb.linearVelocity = new Vector3(movementDir.x * moveSpeed, rb.linearVelocity.y, movementDir.z * moveSpeed);
     }
+
+    void OnTriggerEnter(Collider other)
+    {
+        if (other.CompareTag("Obstacle"))
+        {
+            Die();
+        }
+    }
+
+    public void Die()
+    {
+        Debug.Log("Player has died");
+    }
 }
