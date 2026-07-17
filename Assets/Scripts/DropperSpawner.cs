@@ -9,13 +9,15 @@ public class DropperSpawner : MonoBehaviour
     GameObject enabledModule;
     GameObject lastEnabledModule;
 
+    public Material[] dropperMaterials;
+
     void Start()
     {
         SpawnModule();
     }
     void Update()
     {
-        distanceSinceLastSpawn += GameManager.Instance.dropperSpeed * Time.deltaTime;
+        distanceSinceLastSpawn += GameManager.Instance.currentSpeed * Time.deltaTime;
 
         while (distanceSinceLastSpawn >= moduleDistance)
         {
@@ -27,6 +29,8 @@ public class DropperSpawner : MonoBehaviour
     public void SpawnModule()
     {
         enabledModule = GameManager.Instance.modulePool.GetObject();
+        Material randomMat = dropperMaterials[Random.Range(0, dropperMaterials.Length)];
+        enabledModule.GetComponent<MeshRenderer>().material = randomMat;
         enabledModule.transform.position = transform.position;
         if (lastEnabledModule != null)
         {
