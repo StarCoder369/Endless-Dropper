@@ -62,6 +62,11 @@ public class PlayerMovement : MonoBehaviour
         {
             Die();
         }
+
+        if (other.CompareTag("Reverse"))
+        {
+            GameManager.Instance.OnReverse();
+        }
     }
 
     public void Die()

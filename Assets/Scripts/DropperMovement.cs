@@ -10,6 +10,9 @@ public class DropperMovement : MonoBehaviour
     Transform child;
     MeshRenderer[] childRenderers;
 
+    public GameObject lastModule;
+    public float moduleDistance;
+
     void OnEnable()
     {
         randomChild = Random.Range(0, transform.childCount);
@@ -28,8 +31,6 @@ public class DropperMovement : MonoBehaviour
                     45f * degreeMult,
                     child.localEulerAngles.z);
 
-                // Use the child's MeshRenderer if it has one,
-                // otherwise use all MeshRenderers in its children.
                 MeshRenderer renderer = child.GetComponent<MeshRenderer>();
 
                 if (renderer != null)
@@ -67,6 +68,22 @@ public class DropperMovement : MonoBehaviour
             GameManager.Instance.modulePool.ReturnObject(gameObject);
         }
 
-        transform.position += GameManager.Instance.currentSpeed * Time.deltaTime * normalizedDirection;
+        if (lastModule == null)
+        {
+            if (!GameManager.Instance.reverse)
+            {
+                transform.position += GameManager.Instance.currentSpeed * Time.deltaTime * normalizedDirection;
+            }
+            else
+            {
+                transform.position -= GameManager.Instance.currentSpeed * Time.deltaTime * normalizedDirection;
+            }
+        }
+        else
+        {
+            transform.position = new Vector3(transform.position.x, lastModule.transform.position.y - moduleDistance, transform.position.z);
+        }
+
+
     }
 }

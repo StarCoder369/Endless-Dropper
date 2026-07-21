@@ -22,7 +22,7 @@ public class ObjectPool : MonoBehaviour
             obj.SetActive(true);
             return obj;
         }
-        return Instantiate(prefab);
+        return Instantiate(prefab, transform);
     }
     public void ReturnObject(GameObject obj)
     {
