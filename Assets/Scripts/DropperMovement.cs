@@ -18,29 +18,36 @@ public class DropperMovement : MonoBehaviour
         randomChild = Random.Range(0, transform.childCount);
         int degreeMult = Random.Range(1, 9);
 
+        child = null;
+        childRenderers = null;
+
         for (int i = 0; i < transform.childCount; i++)
         {
             transform.GetChild(i).gameObject.SetActive(false);
+        }
 
-            if (i == randomChild)
+        child = transform.GetChild(randomChild);
+        child.gameObject.SetActive(true);
+
+        child.localRotation = Quaternion.Euler(child.localEulerAngles.x, 45f * degreeMult, child.localEulerAngles.z);
+
+        MeshRenderer renderer = child.GetComponent<MeshRenderer>();
+
+        if (renderer != null)
+        {
+            childRenderers = new MeshRenderer[] { renderer };
+        }
+        else
+        {
+            childRenderers = child.GetComponentsInChildren<MeshRenderer>(true);
+        }
+
+        foreach (MeshRenderer r in childRenderers)
+        {
+            if (r.CompareTag("Reverse"))
             {
-                child = transform.GetChild(i);
-                child.gameObject.SetActive(true);
-                child.localRotation = Quaternion.Euler(
-                    child.localEulerAngles.x,
-                    45f * degreeMult,
-                    child.localEulerAngles.z);
-
-                MeshRenderer renderer = child.GetComponent<MeshRenderer>();
-
-                if (renderer != null)
-                {
-                    childRenderers = new MeshRenderer[] { renderer };
-                }
-                else
-                {
-                    childRenderers = child.GetComponentsInChildren<MeshRenderer>(true);
-                }
+                Debug.Log("Detected reverse");
+                r.gameObject.SetActive(false);
             }
         }
     }
@@ -55,15 +62,20 @@ public class DropperMovement : MonoBehaviour
     {
         Material targetMaterial = GetComponent<MeshRenderer>().material;
 
-        foreach (MeshRenderer renderer in childRenderers)
+        if (childRenderers != null)
         {
-            if (renderer.material != targetMaterial)
+            foreach (MeshRenderer renderer in childRenderers)
             {
-                renderer.material = targetMaterial;
+                if (!renderer.CompareTag("Score") &&
+                    !renderer.CompareTag("Reverse") &&
+                    renderer.material != targetMaterial)
+                {
+                    renderer.material = targetMaterial;
+                }
             }
         }
 
-        if (Vector3.Distance(GameManager.Instance.player.transform.position, transform.position) > 2000f)
+        if (Vector3.Distance(GameManager.Instance.player.transform.position, transform.position) > 3000f)
         {
             GameManager.Instance.modulePool.ReturnObject(gameObject);
         }
@@ -76,14 +88,15 @@ public class DropperMovement : MonoBehaviour
             }
             else
             {
-                transform.position -= GameManager.Instance.currentSpeed * Time.deltaTime * normalizedDirection;
+                transform.position -= GameManager.Instance.currentSpeed * Time.deltaTime * normalizedDirection / 1.5f;
             }
         }
         else
         {
-            transform.position = new Vector3(transform.position.x, lastModule.transform.position.y - moduleDistance, transform.position.z);
+            transform.position = new Vector3(
+                transform.position.x,
+                lastModule.transform.position.y - moduleDistance,
+                transform.position.z);
         }
-
-
     }
 }

@@ -37,7 +37,16 @@ public class PlayerMovement : MonoBehaviour
         moveSpeed = startSpeed * GameManager.Instance.moveMult;
         Vector2 inputVector = moveAction.action.ReadValue<Vector2>();
 
-        Vector3 movementDir = new Vector3(inputVector.x, 0, inputVector.y);
+        Vector3 movementDir;
+        if (GameManager.Instance.reverse)
+        {
+            movementDir = new Vector3(inputVector.x, 0, -inputVector.y);
+        }
+        else
+        {
+            movementDir = new Vector3(inputVector.x, 0, inputVector.y);
+        }
+
 
         rb.linearVelocity = new Vector3(movementDir.x * moveSpeed, rb.linearVelocity.y, movementDir.z * moveSpeed);
 
@@ -63,8 +72,14 @@ public class PlayerMovement : MonoBehaviour
             Die();
         }
 
+        if (other.CompareTag("Score"))
+        {
+            GameManager.Instance.score++;
+        }
+
         if (other.CompareTag("Reverse"))
         {
+            other.gameObject.SetActive(false);
             GameManager.Instance.OnReverse();
         }
     }

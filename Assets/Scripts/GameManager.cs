@@ -7,6 +7,8 @@ public class GameManager : MonoBehaviour
     public ObjectPool modulePool;
     public GameObject player;
 
+    public float score = 0;
+
     [Header("Speed")]
     public float minSpeed;
     public float maxSpeed;
@@ -54,7 +56,10 @@ public class GameManager : MonoBehaviour
 
     private void Update()
     {
-        elapsedTime += Time.deltaTime;
+        if (!reverse)
+        {
+            elapsedTime += Time.deltaTime;
+        }
 
         float targetSpeed = Mathf.Lerp(minSpeed, maxSpeed, Mathf.Clamp01(elapsedTime / timeToMaxSpeed));
 
