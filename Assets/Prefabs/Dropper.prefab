@@ -1641,8 +1641,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::DropperMovement
   targetDirection: {x: 0, y: 1, z: 0}
-  lastModule: {fileID: 0}
-  moduleDistance: 0
+  followOffset: {x: 0, y: -40, z: 0}
+  reverseChance: 15
+  spawner: {fileID: 0}
 --- !u!1001 &65366778599075616
 PrefabInstance:
   m_ObjectHideFlags: 0

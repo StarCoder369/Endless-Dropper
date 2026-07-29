@@ -1,10 +1,12 @@
+using System.Collections;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
 public class PlayerMovement : MonoBehaviour
 {
-    [Header("Movement Values")]
+    [Header("Input Values")]
     public InputActionProperty moveAction;
+    public InputActionProperty abilityAction;
 
     public float moveSpeed;
 
@@ -16,6 +18,9 @@ public class PlayerMovement : MonoBehaviour
     public GameObject landIndicator;
     public LayerMask landLayer;
 
+    [Header("Abilities")]
+    public bool slowAbility;
+
     void Start()
     {
         rb = GetComponent<Rigidbody>();
@@ -25,11 +30,28 @@ public class PlayerMovement : MonoBehaviour
     void OnEnable()
     {
         moveAction.action?.Enable();
+        abilityAction.action?.Enable();
     }
 
     void OnDisable()
     {
         moveAction.action?.Disable();
+        abilityAction.action?.Disable();
+    }
+
+    void Update()
+    {
+        if (slowAbility)
+        {
+            if (abilityAction.action.IsPressed())
+            {
+                GameManager.Instance.Slow();
+            }
+            else
+            {
+                GameManager.Instance.StopSlow();
+            }
+        }
     }
 
     void FixedUpdate()
@@ -63,6 +85,8 @@ public class PlayerMovement : MonoBehaviour
         {
             landIndicator.transform.position = new Vector3(hit.point.x, hit.point.y + 5f, hit.point.z);
         }
+
+
     }
 
     void OnTriggerEnter(Collider other)
@@ -74,7 +98,8 @@ public class PlayerMovement : MonoBehaviour
 
         if (other.CompareTag("Score"))
         {
-            GameManager.Instance.score++;
+            Debug.Log("ScoreCompared");
+            GameManager.Instance.IncreaseScore(1);
         }
 
         if (other.CompareTag("Reverse"))
@@ -86,7 +111,6 @@ public class PlayerMovement : MonoBehaviour
 
     public void Die()
     {
-        Debug.Log("Player has died");
-        Time.timeScale = 0f;
+        GameManager.Instance.Die();
     }
 }
