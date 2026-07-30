@@ -45,10 +45,19 @@ public class PlayerMovement : MonoBehaviour
         {
             if (abilityAction.action.IsPressed())
             {
-                GameManager.Instance.Slow();
+                GameManager.Instance.usingAbility = true;
+                if (GameManager.Instance.energy > GameManager.Instance.energyDrainRate)
+                {
+                    GameManager.Instance.Slow();
+                }
+                else
+                {
+                    GameManager.Instance.StopSlow();
+                }
             }
             else
             {
+                GameManager.Instance.usingAbility = false;
                 GameManager.Instance.StopSlow();
             }
         }

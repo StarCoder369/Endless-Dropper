@@ -1,31 +1,23 @@
-using System.Collections.Generic;
 using UnityEngine;
 
 public class DropperSpawner : MonoBehaviour
 {
     public float moduleDistance;
 
-    private float distanceSinceLastSpawn;
+    float distanceSinceLastSpawn;
+
+    GameObject enabledModule;
+    GameObject lastEnabledModule;
 
     public Material[] dropperMaterials;
     public Material noHeadacheMat;
 
-    public readonly List<DropperMovement> chain = new();
-
     void Start()
     {
-        if (GameManager.Instance.isPlaying)
-        {
-            SpawnModule();
-        }
+        SpawnModule();
     }
-
     void Update()
     {
-        if (!GameManager.Instance.isPlaying)
-        {
-            return;
-        }
         distanceSinceLastSpawn += GameManager.Instance.currentSpeed * Time.deltaTime;
 
         while (distanceSinceLastSpawn >= moduleDistance)
@@ -35,40 +27,27 @@ public class DropperSpawner : MonoBehaviour
         }
     }
 
-    void SpawnModule()
+    public void SpawnModule()
     {
-        if (!GameManager.Instance.isPlaying)
+        enabledModule = GameManager.Instance.modulePool.GetObject();
+        if (!GameManager.Instance.noHeadacheMode)
         {
-            return;
-        }
-
-        GameObject obj = GameManager.Instance.modulePool.GetObject();
-
-        MeshRenderer renderer = obj.GetComponent<MeshRenderer>();
-
-        renderer.material = GameManager.Instance.noHeadacheMode
-            ? noHeadacheMat
-            : dropperMaterials[Random.Range(0, dropperMaterials.Length)];
-
-        DropperMovement module = obj.GetComponent<DropperMovement>();
-
-        module.spawner = this;
-        module.followOffset = Vector3.down * moduleDistance;
-
-        if (chain.Count == 0)
-        {
-            obj.transform.position = transform.position;
+            Material randomMat = dropperMaterials[Random.Range(0, dropperMaterials.Length)];
+            enabledModule.GetComponent<MeshRenderer>().material = randomMat;
         }
         else
         {
-            obj.transform.position = chain[^1].transform.position + module.followOffset;
+            enabledModule.GetComponent<MeshRenderer>().material = noHeadacheMat;
         }
 
-        chain.Add(module);
-    }
 
-    public void Remove(DropperMovement module)
-    {
-        chain.Remove(module);
+        enabledModule.transform.position = transform.position;
+        if (lastEnabledModule != null)
+        {
+            enabledModule.transform.position = new Vector3(enabledModule.transform.position.x, lastEnabledModule.transform.position.y - moduleDistance, enabledModule.transform.position.z);
+            enabledModule.GetComponent<DropperMovement>().lastModule = lastEnabledModule;
+            enabledModule.GetComponent<DropperMovement>().moduleDistance = moduleDistance;
+        }
+        lastEnabledModule = enabledModule;
     }
 }
