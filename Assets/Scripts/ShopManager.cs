@@ -18,6 +18,7 @@ public class ShopManager : MonoBehaviour
                 item.currentState = ShopItem.ItemState.Equipped;
             }
             item.UpdateUI();
+            item.UpdateSaves();
         }
     }
 }

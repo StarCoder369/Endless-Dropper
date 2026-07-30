@@ -139,16 +139,19 @@ public class PlayerMovement : MonoBehaviour
     {
         if (other.CompareTag("Obstacle"))
         {
+            CoinUIManager.Instance.ClearCoins();
             Die();
         }
         else if (other.CompareTag("Score"))
         {
             GameManager.Instance.IncreaseScore(1);
+            CoinUIManager.Instance.AddCoins(5);
         }
         else if (other.CompareTag("Reverse"))
         {
             other.gameObject.SetActive(false);
             GameManager.Instance.OnReverse();
+            CoinUIManager.Instance.AddCoins(5);
         }
     }
 

@@ -37,6 +37,40 @@ public class ShopItem : MonoBehaviour
         itemNameTxt.text = itemName;
         itemCostTxt.text = itemCost.ToString();
         itemImg.sprite = itemIcon;
+
+        if (slowItem)
+        {
+            if (SaveManager.Instance.GetSlowToolUnlocked())
+            {
+                if (SaveManager.Instance.GetEquippedTool() == EquippedTool.Slow)
+                {
+                    currentState = ItemState.Equipped;
+                }
+                else
+                {
+                    currentState = ItemState.NotEquipped;
+                }
+            }
+        }
+
+        if (landIndicatorItem)
+        {
+            if (SaveManager.Instance.GetIndicatorToolUnlocked())
+            {
+                if (SaveManager.Instance.GetEquippedTool() == EquippedTool.Indicator)
+                {
+                    currentState = ItemState.Equipped;
+                }
+                else
+                {
+                    currentState = ItemState.NotEquipped;
+                }
+            }
+        }
+
+
+        UpdateUI();
+        UpdateSaves();
     }
 
     public void TryClick()
@@ -60,7 +94,7 @@ public class ShopItem : MonoBehaviour
 
             if (landIndicatorItem)
             {
-                player.currentAbility = PlayerMovement.Abilities.Slow;
+                player.currentAbility = PlayerMovement.Abilities.Indicator;
             }
 
         }
@@ -75,11 +109,12 @@ public class ShopItem : MonoBehaviour
 
             if (landIndicatorItem)
             {
-                player.currentAbility = PlayerMovement.Abilities.Slow;
+                player.currentAbility = PlayerMovement.Abilities.Indicator;
             }
         }
 
         UpdateUI();
+        UpdateSaves();
     }
 
     public void UpdateUI()
@@ -106,5 +141,23 @@ public class ShopItem : MonoBehaviour
             stateTxt.gameObject.SetActive(true);
             stateTxt.text = "Equipped";
         }
+    }
+
+    public void UpdateSaves()
+    {
+        if (currentState == ItemState.Locked)
+        {
+            SaveManager.Instance.SetSlowToolUnlocked(false);
+        }
+        else if (currentState == ItemState.NotEquipped)
+        {
+            SaveManager.Instance.SetSlowToolUnlocked(true);
+        }
+        else if (currentState == ItemState.Equipped)
+        {
+            SaveManager.Instance.SetSlowToolUnlocked(true);
+            SaveManager.Instance.SetEquippedTool(EquippedTool.Slow);
+        }
+        SaveManager.Instance.Save();
     }
 }

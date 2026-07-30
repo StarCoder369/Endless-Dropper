@@ -20,7 +20,8 @@ public class GameManager : MonoBehaviour
     public GameObject mainMenu;
     public Slider energySlider;
 
-    public float score = 0;
+    public int score = 0;
+    public int highScore = 0;
     public TMP_Text scoreTxt;
 
     [Header("Speed")]
@@ -82,6 +83,7 @@ public class GameManager : MonoBehaviour
 
     private void Start()
     {
+        SaveManager.Instance.Load();
         scoreTxt.text = score.ToString();
         score = 0;
 
@@ -95,6 +97,9 @@ public class GameManager : MonoBehaviour
         Time.timeScale = 0f;
 
         mainMenu.SetActive(true);
+
+        coins = SaveManager.Instance.GetCoins();
+        highScore = SaveManager.Instance.GetHighScore();
     }
 
 
@@ -115,6 +120,15 @@ public class GameManager : MonoBehaviour
         UpdateScoreTimer();
     }
 
+
+    public void UpdateHighScore()
+    {
+        if (score > highScore)
+        {
+            highScore = score;
+            SaveManager.Instance.SetHighScore(highScore);
+        }
+    }
 
     private void UpdateTimeScale()
     {
@@ -376,7 +390,7 @@ public class GameManager : MonoBehaviour
 
         moveMult = 1f;
 
-        score = 0f;
+        score = 0;
 
         scoreTxt.text = score.ToString();
 
@@ -402,6 +416,7 @@ public class GameManager : MonoBehaviour
 
         diePanel.SetActive(false);
         mainMenu.SetActive(false);
+        SaveManager.Instance.Save();
     }
 
 
@@ -414,5 +429,10 @@ public class GameManager : MonoBehaviour
         {
             module.ReturnModule();
         }
+    }
+
+    public void IncreaseCoins(int increaseAmount)
+    {
+        coins += increaseAmount;
     }
 }
