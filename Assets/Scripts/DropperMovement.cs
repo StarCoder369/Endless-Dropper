@@ -4,99 +4,92 @@ public class DropperMovement : MonoBehaviour
 {
     public Vector3 targetDirection = Vector3.up;
 
-    Vector3 normalizedDirection;
+    private Vector3 direction;
 
-    int randomChild;
-    Transform child;
-    MeshRenderer[] childRenderers;
+    public Vector3 followOffset;
 
-    public GameObject lastModule;
-    public float moduleDistance;
+    public int reverseChance = 6;
+
+    [HideInInspector]
+    public DropperSpawner spawner;
+
+    private MeshRenderer[] childRenderers;
 
     void OnEnable()
     {
-        randomChild = Random.Range(0, transform.childCount);
-        int degreeMult = Random.Range(1, 9);
+        direction = targetDirection.normalized;
 
-        child = null;
-        childRenderers = null;
+        int randomChild = Random.Range(0, transform.childCount);
 
         for (int i = 0; i < transform.childCount; i++)
         {
             transform.GetChild(i).gameObject.SetActive(false);
         }
 
-        child = transform.GetChild(randomChild);
+        Transform child = transform.GetChild(randomChild);
         child.gameObject.SetActive(true);
 
-        child.localRotation = Quaternion.Euler(child.localEulerAngles.x, 45f * degreeMult, child.localEulerAngles.z);
+        child.localRotation = Quaternion.Euler(child.localEulerAngles.x, Random.Range(0, 8) * 45f, child.localEulerAngles.z);
 
-        MeshRenderer renderer = child.GetComponent<MeshRenderer>();
+        childRenderers = child.GetComponentsInChildren<MeshRenderer>(true);
 
-        if (renderer != null)
+        foreach (Transform t in child.GetComponentsInChildren<Transform>(true))
         {
-            childRenderers = new MeshRenderer[] { renderer };
-        }
-        else
-        {
-            childRenderers = child.GetComponentsInChildren<MeshRenderer>(true);
-        }
-
-        foreach (MeshRenderer r in childRenderers)
-        {
-            if (r.CompareTag("Reverse"))
+            if (GameManager.Instance.elapsedTime >= 7.5f)
             {
-                Debug.Log("Detected reverse");
-                r.gameObject.SetActive(false);
-            }
-        }
-    }
-
-    void Start()
-    {
-        normalizedDirection = targetDirection.normalized;
-        transform.position += GameManager.Instance.currentSpeed * Time.deltaTime * normalizedDirection;
-    }
-
-    void Update()
-    {
-        Material targetMaterial = GetComponent<MeshRenderer>().material;
-
-        if (childRenderers != null)
-        {
-            foreach (MeshRenderer renderer in childRenderers)
-            {
-                if (!renderer.CompareTag("Score") &&
-                    !renderer.CompareTag("Reverse") &&
-                    renderer.material != targetMaterial)
+                if (t.CompareTag("Reverse"))
                 {
-                    renderer.material = targetMaterial;
+                    t.gameObject.SetActive(Random.Range(0, reverseChance) == 0);
+                }
+            }
+            else
+            {
+                if (t.CompareTag("Reverse"))
+                {
+                    t.gameObject.SetActive(false);
                 }
             }
         }
 
-        if (Vector3.Distance(GameManager.Instance.player.transform.position, transform.position) > 3000f)
+
+    }
+
+    void Update()
+    {
+        Material mat = GetComponent<MeshRenderer>().material;
+
+        foreach (MeshRenderer r in childRenderers)
         {
-            GameManager.Instance.modulePool.ReturnObject(gameObject);
+            if (!r.CompareTag("Score") && !r.CompareTag("Reverse") && r.material != mat)
+            {
+                r.material = mat;
+            }
         }
 
-        if (lastModule == null)
+        if ((GameManager.Instance.player.transform.position - transform.position).sqrMagnitude > 3000f * 3000f)
         {
-            if (!GameManager.Instance.reverse)
-            {
-                transform.position += GameManager.Instance.currentSpeed * Time.deltaTime * normalizedDirection;
-            }
-            else
-            {
-                transform.position -= GameManager.Instance.currentSpeed * Time.deltaTime * normalizedDirection / 1.5f;
-            }
+            ReturnModule();
+            return;
+        }
+
+        int index = spawner.chain.IndexOf(this);
+
+        if (index == 0)
+        {
+            Vector3 moveDir = GameManager.Instance.reverse ? -direction : direction;
+
+            transform.position += moveDir * GameManager.Instance.currentSpeed * Time.deltaTime;
         }
         else
         {
-            transform.position = new Vector3(
-                transform.position.x,
-                lastModule.transform.position.y - moduleDistance,
-                transform.position.z);
+            transform.position = spawner.chain[index - 1].transform.position + followOffset;
         }
+    }
+
+    public void ReturnModule()
+    {
+        spawner.Remove(this);
+        GameManager.Instance.modulePool.ReturnObject(gameObject);
+        return;
     }
 }
