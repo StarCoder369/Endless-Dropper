@@ -2,6 +2,8 @@
 
 [Play the game here](https://starcoder.itch.io/endless-dropper)
 
+[Game Play Video](https://youtu.be/4c9wXjzNge8)
+
 ## About
 
 Endless Dropper is an endless dropper game where you survive for as long as possible while avoiding obstacles.
