@@ -18,7 +18,6 @@ public class SaveManager : MonoBehaviour
         }
 
         Instance = this;
-        DontDestroyOnLoad(gameObject);
 
         savePath = Path.Combine(Application.persistentDataPath, "save.json");
 
@@ -120,9 +119,9 @@ public class SaveManager : MonoBehaviour
 
     // Settings
 
-    public float GetAudioVolume()
+    public bool GetMuted()
     {
-        return data.settings.audioVolume;
+        return data.settings.muted;
     }
 
     public void SetAudioVolume(float value)
@@ -202,7 +201,7 @@ public class SaveData
 [System.Serializable]
 public class SettingsData
 {
-    public float audioVolume = 1f;
+    public bool muted = false;
     public bool noHeadacheMode = false;
 }
 

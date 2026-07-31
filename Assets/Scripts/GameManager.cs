@@ -1,5 +1,6 @@
 using TMPro;
 using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
 public class GameManager : MonoBehaviour
@@ -9,20 +10,25 @@ public class GameManager : MonoBehaviour
     [Header("References")]
     public ObjectPool modulePool;
     public DropperSpawner spawner;
-    public GameObject player;
+    public PlayerMovement playerMove;
+    public EventSystem eventSystem;
 
     [Header("Other Values")]
     public int coins;
     public TMP_Text coinTxt;
 
     [Header("UI")]
-    public GameObject diePanel;
-    public GameObject mainMenu;
+    public DynamicUIScreen diePanel;
+    public DynamicUIScreen mainMenu;
+    public GameObject shopPanel;
+    public TMP_Text currentAbilityTxt;
     public Slider energySlider;
+    public GameObject playAgainBtn;
 
     public int score = 0;
     public int highScore = 0;
     public TMP_Text scoreTxt;
+    public TMP_Text highScoreTxt;
 
     [Header("Speed")]
     public float minSpeed;
@@ -68,6 +74,10 @@ public class GameManager : MonoBehaviour
     private Quaternion permRotationStart;
     private Quaternion rotationTarget;
 
+    bool isSlow;
+
+    bool muted = false;
+
 
     private void Awake()
     {
@@ -83,23 +93,38 @@ public class GameManager : MonoBehaviour
 
     private void Start()
     {
+        shopPanel.SetActive(true);
+        OpenMenu(mainMenu);
         SaveManager.Instance.Load();
         scoreTxt.text = score.ToString();
         score = 0;
+        isSlow = false;
 
         currentSpeed = minSpeed;
 
-        rotationStart = player.transform.rotation;
-        permRotationStart = player.transform.rotation;
+        rotationStart = playerMove.gameObject.transform.rotation;
+        permRotationStart = playerMove.gameObject.transform.rotation;
         rotationTarget = rotationStart;
 
         targetTimeScale = 0f;
         Time.timeScale = 0f;
 
-        mainMenu.SetActive(true);
-
         coins = SaveManager.Instance.GetCoins();
         highScore = SaveManager.Instance.GetHighScore();
+        highScoreTxt.text = highScore.ToString();
+        noHeadacheMode = SaveManager.Instance.GetNoHeadacheMode();
+        muted = SaveManager.Instance.GetMuted();
+
+        if (muted)
+        {
+            GetComponent<AudioSource>().enabled = false;
+        }
+        else
+        {
+            GetComponent<AudioSource>().enabled = true;
+        }
+
+        shopPanel.SetActive(false);
     }
 
 
@@ -118,14 +143,22 @@ public class GameManager : MonoBehaviour
         UpdateElapsedTime();
         UpdateMovementSpeed();
         UpdateScoreTimer();
+        UpdateHighScore();
+        UpdateCurrentAbility();
     }
 
+
+    public void UpdateCurrentAbility()
+    {
+        currentAbilityTxt.text = $"Current Ability: {playerMove.currentAbility}";
+    }
 
     public void UpdateHighScore()
     {
         if (score > highScore)
         {
             highScore = score;
+            highScoreTxt.text = highScore.ToString();
             SaveManager.Instance.SetHighScore(highScore);
         }
     }
@@ -188,7 +221,15 @@ public class GameManager : MonoBehaviour
             HandleNormalMovement(targetSpeed);
         }
 
-        moveMult = currentSpeed / minSpeed;
+        if (isSlow)
+        {
+            moveMult = currentSpeed / minSpeed * 1.5f;
+        }
+        else
+        {
+            moveMult = currentSpeed / minSpeed;
+        }
+
     }
 
 
@@ -205,7 +246,7 @@ public class GameManager : MonoBehaviour
         {
             float rotateT = (t - 0.5f) / 0.5f;
 
-            player.transform.rotation = Quaternion.Slerp(rotationStart, rotationTarget, rotateT);
+            playerMove.transform.rotation = Quaternion.Slerp(rotationStart, rotationTarget, rotateT);
         }
 
 
@@ -213,7 +254,7 @@ public class GameManager : MonoBehaviour
         {
             currentSpeed = 0f;
 
-            player.transform.rotation = rotationTarget;
+            playerMove.transform.rotation = rotationTarget;
 
             transitioningDown = false;
             transitioningUp = true;
@@ -306,9 +347,9 @@ public class GameManager : MonoBehaviour
 
         transitionStartSpeed = currentSpeed;
 
-        rotationStart = player.transform.rotation;
+        rotationStart = playerMove.transform.rotation;
 
-        rotationTarget = rotationStart * Quaternion.AngleAxis(180f, player.transform.right);
+        rotationTarget = rotationStart * Quaternion.AngleAxis(180f, playerMove.transform.right);
 
 
         transitioningDown = true;
@@ -332,7 +373,10 @@ public class GameManager : MonoBehaviour
 
     public void Die()
     {
+        OpenMenu(diePanel);
+
         isPlaying = false;
+        // eventSystem.SetSelectedGameObject(playAgainBtn);
 
         targetTimeScale = 0f;
         timeScaleVelocity = 0f;
@@ -341,9 +385,25 @@ public class GameManager : MonoBehaviour
 
         ResetModules();
 
-        diePanel.SetActive(true);
-        mainMenu.SetActive(false);
+        SaveManager.Instance.Save();
     }
+
+    public void OpenMenu(DynamicUIScreen panel)
+    {
+        mainMenu.gameObject.SetActive(false);
+        diePanel.gameObject.SetActive(false);
+
+        if (panel == null)
+        {
+            return;
+        }
+
+
+        panel.gameObject.SetActive(true);
+
+        DynamicUIControllerSelector.Instance.RegisterAndCheckScreen(panel);
+    }
+
 
 
     public void ReturnToMenu()
@@ -355,8 +415,7 @@ public class GameManager : MonoBehaviour
 
         Time.timeScale = 0f;
 
-        diePanel.SetActive(false);
-        mainMenu.SetActive(true);
+        OpenMenu(mainMenu);
     }
 
 
@@ -366,6 +425,7 @@ public class GameManager : MonoBehaviour
         {
             return;
         }
+        isSlow = true;
 
         targetTimeScale = slowTimeScale;
     }
@@ -377,6 +437,7 @@ public class GameManager : MonoBehaviour
         {
             return;
         }
+        isSlow = false;
 
         targetTimeScale = 1f;
     }
@@ -396,7 +457,7 @@ public class GameManager : MonoBehaviour
 
         currentSpeed = minSpeed;
 
-        player.transform.rotation = permRotationStart;
+        playerMove.transform.rotation = permRotationStart;
 
         rotationStart = permRotationStart;
         rotationTarget = permRotationStart;
@@ -414,8 +475,7 @@ public class GameManager : MonoBehaviour
 
         isPlaying = true;
 
-        diePanel.SetActive(false);
-        mainMenu.SetActive(false);
+        OpenMenu(null);
         SaveManager.Instance.Save();
     }
 
@@ -434,5 +494,6 @@ public class GameManager : MonoBehaviour
     public void IncreaseCoins(int increaseAmount)
     {
         coins += increaseAmount;
+        SaveManager.Instance.SetCoins(coins);
     }
 }

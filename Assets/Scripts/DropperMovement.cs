@@ -66,7 +66,7 @@ public class DropperMovement : MonoBehaviour
             }
         }
 
-        if ((GameManager.Instance.player.transform.position - transform.position).sqrMagnitude > 3000f * 3000f)
+        if ((GameManager.Instance.playerMove.transform.position - transform.position).sqrMagnitude > 3000f * 3000f)
         {
             ReturnModule();
             return;

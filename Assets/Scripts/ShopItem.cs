@@ -32,24 +32,25 @@ public class ShopItem : MonoBehaviour
     [Header("Internal Values")]
     public ItemState currentState = ItemState.Locked;
 
-    void Start()
+    private void OnEnable()
     {
         itemNameTxt.text = itemName;
         itemCostTxt.text = itemCost.ToString();
         itemImg.sprite = itemIcon;
 
+        LoadState();
+        UpdateUI();
+    }
+
+    private void LoadState()
+    {
+        currentState = ItemState.Locked;
+
         if (slowItem)
         {
             if (SaveManager.Instance.GetSlowToolUnlocked())
             {
-                if (SaveManager.Instance.GetEquippedTool() == EquippedTool.Slow)
-                {
-                    currentState = ItemState.Equipped;
-                }
-                else
-                {
-                    currentState = ItemState.NotEquipped;
-                }
+                currentState = SaveManager.Instance.GetEquippedTool() == EquippedTool.Slow ? ItemState.Equipped : ItemState.NotEquipped;
             }
         }
 
@@ -57,20 +58,14 @@ public class ShopItem : MonoBehaviour
         {
             if (SaveManager.Instance.GetIndicatorToolUnlocked())
             {
-                if (SaveManager.Instance.GetEquippedTool() == EquippedTool.Indicator)
-                {
-                    currentState = ItemState.Equipped;
-                }
-                else
-                {
-                    currentState = ItemState.NotEquipped;
-                }
+                currentState = SaveManager.Instance.GetEquippedTool() == EquippedTool.Indicator ? ItemState.Equipped : ItemState.NotEquipped;
             }
         }
 
-
-        UpdateUI();
-        UpdateSaves();
+        if (currentState == ItemState.Equipped)
+        {
+            EquipTool();
+        }
     }
 
     public void TryClick()
@@ -81,40 +76,54 @@ public class ShopItem : MonoBehaviour
             {
                 GameManager.Instance.coins -= itemCost;
                 currentState = ItemState.NotEquipped;
+
+                SaveUnlock();
             }
         }
         else if (currentState == ItemState.NotEquipped)
         {
             shopManager.SetAllNotEquipped(this);
+
             currentState = ItemState.Equipped;
-            if (slowItem)
-            {
-                player.currentAbility = PlayerMovement.Abilities.Slow;
-            }
 
-            if (landIndicatorItem)
-            {
-                player.currentAbility = PlayerMovement.Abilities.Indicator;
-            }
+            EquipTool();
 
+            UpdateSaves();
         }
         else if (currentState == ItemState.Equipped)
         {
-            currentState = ItemState.Equipped;
-
-            if (slowItem)
-            {
-                player.currentAbility = PlayerMovement.Abilities.Slow;
-            }
-
-            if (landIndicatorItem)
-            {
-                player.currentAbility = PlayerMovement.Abilities.Indicator;
-            }
+            EquipTool();
         }
 
         UpdateUI();
-        UpdateSaves();
+    }
+
+    private void EquipTool()
+    {
+        if (slowItem)
+        {
+            player.currentAbility = PlayerMovement.Abilities.Slow;
+        }
+
+        if (landIndicatorItem)
+        {
+            player.currentAbility = PlayerMovement.Abilities.Indicator;
+        }
+    }
+
+    private void SaveUnlock()
+    {
+        if (slowItem)
+        {
+            SaveManager.Instance.SetSlowToolUnlocked(true);
+        }
+
+        if (landIndicatorItem)
+        {
+            SaveManager.Instance.SetIndicatorToolUnlocked(true);
+        }
+
+        SaveManager.Instance.SetCoins(GameManager.Instance.coins);
     }
 
     public void UpdateUI()
@@ -130,9 +139,7 @@ public class ShopItem : MonoBehaviour
             coinImg.gameObject.SetActive(false);
             itemCostTxt.gameObject.SetActive(false);
             stateTxt.gameObject.SetActive(true);
-
             stateTxt.text = "Not Equipped";
-
         }
         else if (currentState == ItemState.Equipped)
         {
@@ -145,19 +152,26 @@ public class ShopItem : MonoBehaviour
 
     public void UpdateSaves()
     {
-        if (currentState == ItemState.Locked)
+        if (slowItem)
         {
-            SaveManager.Instance.SetSlowToolUnlocked(false);
+            SaveManager.Instance.SetSlowToolUnlocked(currentState != ItemState.Locked);
+
+            if (currentState == ItemState.Equipped)
+            {
+                SaveManager.Instance.SetEquippedTool(EquippedTool.Slow);
+            }
         }
-        else if (currentState == ItemState.NotEquipped)
+
+        if (landIndicatorItem)
         {
-            SaveManager.Instance.SetSlowToolUnlocked(true);
+            SaveManager.Instance.SetIndicatorToolUnlocked(currentState != ItemState.Locked);
+
+            if (currentState == ItemState.Equipped)
+            {
+                SaveManager.Instance.SetEquippedTool(EquippedTool.Indicator);
+            }
         }
-        else if (currentState == ItemState.Equipped)
-        {
-            SaveManager.Instance.SetSlowToolUnlocked(true);
-            SaveManager.Instance.SetEquippedTool(EquippedTool.Slow);
-        }
-        SaveManager.Instance.Save();
+
+        SaveManager.Instance.SetCoins(GameManager.Instance.coins);
     }
 }

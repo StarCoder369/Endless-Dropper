@@ -35,6 +35,8 @@ public class CoinUIManager : MonoBehaviour
     public void SpawnCoin()
     {
         GameObject coin = Instantiate(coinPrefab, coinContainer);
+        coin.GetComponent<AudioSource>().volume = Random.Range(0.3f, 0.7f);
+        coin.GetComponent<AudioSource>().pitch = Random.Range(0.6f, 1f);
         activeCoins.Add(coin);
 
         RectTransform rect = coin.GetComponent<RectTransform>();
