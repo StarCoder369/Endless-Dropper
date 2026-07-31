@@ -1,3 +1,8 @@
+> [!WARNING]
+> This game contains bright colors and some visual effects. If you are sensitive to flashing lights, play with caution.
+> 
+> A **No Headache Mode** option is available to reduce some visual intensity.
+
 # Endless Dropper
 
 [Play the game here](https://starcoder.itch.io/endless-dropper)
@@ -48,12 +53,6 @@ There is no final level or finish line, since every run is about trying to beat 
 - Score and high score tracking
 - Colorful obstacle-based gameplay
 - Accessibility options (No headache mode and mute)
-
-## Accessibility
-
-⚠️ WARNING: This game contains bright colors and some visual effects. If you are sensitive to flashing lights, play with caution.
-
-A **No Headache Mode** option is available to reduce some visual intensity.
 
 ## Support
 
