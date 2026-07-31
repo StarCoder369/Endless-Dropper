@@ -100,6 +100,12 @@ public class PlayerMovement : MonoBehaviour
 
     void FixedUpdate()
     {
+        if (GameManager.Instance.playerFrozen)
+        {
+            rb.linearVelocity = new Vector3(0, rb.linearVelocity.y, 0);
+            return;
+        }
+
         moveSpeed = startSpeed * GameManager.Instance.moveMult;
 
         Vector2 inputVector = moveAction.action.ReadValue<Vector2>();
@@ -110,7 +116,6 @@ public class PlayerMovement : MonoBehaviour
         {
             movementDir.z *= -1;
         }
-
 
         rb.linearVelocity = new Vector3(
             movementDir.x * moveSpeed,

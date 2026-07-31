@@ -25,6 +25,14 @@ public class GameManager : MonoBehaviour
     public Slider energySlider;
     public GameObject playAgainBtn;
 
+    public GameObject mutedIcon;
+    public GameObject unmutedIcon;
+
+    public Image headacheModeImg;
+
+    public Color noHeadacheModeColor;
+    public Color headacheModeColor;
+
     public int score = 0;
     public int highScore = 0;
     public TMP_Text scoreTxt;
@@ -58,6 +66,13 @@ public class GameManager : MonoBehaviour
     public bool usingAbility = false;
     public bool isPlaying;
 
+    [Header("Start Delay")]
+    public float startFreezeTime = 15f;
+
+    [HideInInspector] public bool playerFrozen;
+
+    private float startFreezeTimer;
+
     private bool transitioningDown;
     private bool transitioningUp;
     private bool canIncreaseScore = true;
@@ -76,7 +91,7 @@ public class GameManager : MonoBehaviour
 
     bool isSlow;
 
-    bool muted = false;
+    public bool muted = false;
 
 
     private void Awake()
@@ -93,6 +108,7 @@ public class GameManager : MonoBehaviour
 
     private void Start()
     {
+        playerMove.transform.position = Vector3.zero;
         shopPanel.SetActive(true);
         OpenMenu(mainMenu);
         SaveManager.Instance.Load();
@@ -124,17 +140,35 @@ public class GameManager : MonoBehaviour
             GetComponent<AudioSource>().enabled = true;
         }
 
+        if (noHeadacheMode)
+        {
+            headacheModeImg.color = noHeadacheModeColor;
+        }
+        else
+        {
+            headacheModeImg.color = headacheModeColor;
+        }
+
         shopPanel.SetActive(false);
     }
 
 
     private void Update()
     {
-        UpdateUI();
-
-        //Requires playing functions
         if (!isPlaying)
         {
+            return;
+        }
+
+        if (playerFrozen)
+        {
+            startFreezeTimer -= Time.deltaTime;
+
+            if (startFreezeTimer <= 0f)
+            {
+                playerFrozen = false;
+            }
+
             return;
         }
 
@@ -474,6 +508,8 @@ public class GameManager : MonoBehaviour
         Time.timeScale = 1f;
 
         isPlaying = true;
+        playerFrozen = true;
+        startFreezeTimer = startFreezeTime;
 
         OpenMenu(null);
         SaveManager.Instance.Save();
@@ -495,5 +531,38 @@ public class GameManager : MonoBehaviour
     {
         coins += increaseAmount;
         SaveManager.Instance.SetCoins(coins);
+    }
+
+    public void ToggleMute()
+    {
+        muted = !muted;
+        if (muted)
+        {
+            GetComponent<AudioSource>().enabled = false;
+            mutedIcon.SetActive(true);
+            unmutedIcon.SetActive(false);
+        }
+        else
+        {
+            GetComponent<AudioSource>().enabled = true;
+            mutedIcon.SetActive(false);
+            unmutedIcon.SetActive(true);
+        }
+
+        SaveManager.Instance.SetMuted(muted);
+    }
+
+    public void ToggleHeadacheMode()
+    {
+        noHeadacheMode = !noHeadacheMode;
+        if (noHeadacheMode)
+        {
+            headacheModeImg.color = noHeadacheModeColor;
+        }
+        else
+        {
+            headacheModeImg.color = headacheModeColor;
+        }
+        SaveManager.Instance.SetNoHeadacheMode(noHeadacheMode);
     }
 }

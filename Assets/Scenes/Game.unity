@@ -1116,7 +1116,7 @@ MonoBehaviour:
   m_Navigation:
     m_Mode: 4
     m_WrapAround: 0
-    m_SelectOnUp: {fileID: 814818688}
+    m_SelectOnUp: {fileID: 0}
     m_SelectOnDown: {fileID: 814818688}
     m_SelectOnLeft: {fileID: 0}
     m_SelectOnRight: {fileID: 373701874}
@@ -2509,10 +2509,10 @@ MonoBehaviour:
   m_Navigation:
     m_Mode: 4
     m_WrapAround: 0
-    m_SelectOnUp: {fileID: 0}
+    m_SelectOnUp: {fileID: 814818688}
     m_SelectOnDown: {fileID: 0}
     m_SelectOnLeft: {fileID: 0}
-    m_SelectOnRight: {fileID: 0}
+    m_SelectOnRight: {fileID: 1984398263}
   m_Transition: 1
   m_Colors:
     m_NormalColor: {r: 1, g: 1, b: 1, a: 1}
@@ -2537,7 +2537,19 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 692022890}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 1618476878}
+        m_TargetAssemblyTypeName: GameManager, Assembly-CSharp
+        m_MethodName: ToggleHeadacheMode
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!114 &692022890
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3125,7 +3137,7 @@ MonoBehaviour:
     m_Mode: 4
     m_WrapAround: 0
     m_SelectOnUp: {fileID: 318779598}
-    m_SelectOnDown: {fileID: 318779598}
+    m_SelectOnDown: {fileID: 692022889}
     m_SelectOnLeft: {fileID: 0}
     m_SelectOnRight: {fileID: 373701874}
   m_Transition: 1
@@ -5246,6 +5258,11 @@ MonoBehaviour:
   currentAbilityTxt: {fileID: 1582697726}
   energySlider: {fileID: 1503735913}
   playAgainBtn: {fileID: 1981684896}
+  mutedIcon: {fileID: 212941270}
+  unmutedIcon: {fileID: 1457220882}
+  headacheModeImg: {fileID: 692022890}
+  noHeadacheModeColor: {r: 0.16983688, g: 1, b: 0, a: 1}
+  headacheModeColor: {r: 1, g: 1, b: 1, a: 1}
   score: 0
   highScore: 0
   scoreTxt: {fileID: 1574435439}
@@ -5267,6 +5284,9 @@ MonoBehaviour:
   energyDrainRate: 0.5
   usingAbility: 0
   isPlaying: 0
+  startFreezeTime: 5
+  playerFrozen: 0
+  muted: 0
 --- !u!4 &1618476879
 Transform:
   m_ObjectHideFlags: 0
@@ -6093,7 +6113,7 @@ GameObject:
   - component: {fileID: 1984398264}
   - component: {fileID: 1984398263}
   m_Layer: 5
-  m_Name: NoHeadacheMode (1)
+  m_Name: Mute
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -6135,9 +6155,9 @@ MonoBehaviour:
   m_Navigation:
     m_Mode: 4
     m_WrapAround: 0
-    m_SelectOnUp: {fileID: 0}
+    m_SelectOnUp: {fileID: 814818688}
     m_SelectOnDown: {fileID: 0}
-    m_SelectOnLeft: {fileID: 0}
+    m_SelectOnLeft: {fileID: 692022889}
     m_SelectOnRight: {fileID: 0}
   m_Transition: 1
   m_Colors:
@@ -6163,7 +6183,19 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 1984398264}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 1618476878}
+        m_TargetAssemblyTypeName: GameManager, Assembly-CSharp
+        m_MethodName: ToggleMute
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!114 &1984398264
 MonoBehaviour:
   m_ObjectHideFlags: 0

@@ -124,9 +124,9 @@ public class SaveManager : MonoBehaviour
         return data.settings.muted;
     }
 
-    public void SetAudioVolume(float value)
+    public void SetMuted(bool value)
     {
-        data.settings.audioVolume = Mathf.Clamp01(value);
+        data.settings.muted = value;
         Save();
     }
 
